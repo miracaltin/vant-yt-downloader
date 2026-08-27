@@ -16,8 +16,14 @@ venv/
 env/
 .venv/
 
+# PyInstaller build artifacts
+build/
+dist/
+*.spec
+
 # IDEs & OS files
 .vscode/
 .idea/
 Thumbs.db
 Desktop.ini
+

@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VANT YT Downloader</title>
+    <!-- Outfit Font from Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <!-- Lucide Icons (Local copy for instant offline loading) -->
+    <script src="lucide.min.js"></script>
+
+    <!-- Internationalization / Localization -->
+    <script src="i18n.js"></script>
+
+    <!-- Qt WebChannel CDN/Built-in support -->
+    <script src="qrc:///qtwebchannel/qwebchannel.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="brand">
+                <i data-lucide="arrow-big-down-dash" class="brand-icon"></i>
+                <span class="brand-text" data-i18n="brand_name">VANT YT Downloader</span>
+            </div>
+            <nav class="nav-menu">
+                <button class="nav-item active" data-tab="download">
+                    <i data-lucide="arrow-down-circle"></i>
+                    <span data-i18n="nav_download">Download</span>
+                </button>
+                <button class="nav-item" data-tab="library">
+                    <i data-lucide="folder-heart"></i>
+                    <span data-i18n="nav_library">Library</span>
+                </button>
+                <button class="nav-item" data-tab="downloads-list">
+                    <i data-lucide="list-video"></i>
+                    <span data-i18n="nav_downloads">Downloads</span>
+                    <span class="badge" id="active-badge" style="display: none;">0</span>
+                </button>
+                <button class="nav-item" data-tab="settings">
+                    <i data-lucide="settings"></i>
+                    <span data-i18n="nav_settings">Settings</span>
+                </button>
+            </nav>
+            <div class="sidebar-footer">
+                <span class="version">v1.0.0</span>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- TAB: DOWNLOAD -->
+            <section id="tab-download" class="tab-panel active">
+                <div class="header-section">
+                    <h1 data-i18n="download_title">Download Video or Playlist</h1>
+                    <p class="subtitle" data-i18n="download_subtitle">Paste a YouTube link, select format and resolution to start downloading immediately.</p>
+                </div>
+
+                <div class="input-card">
+                    <div class="search-box">
+                        <i data-lucide="link-2" class="input-icon"></i>
+                        <input type="text" id="youtube-url" placeholder="https://www.youtube.com/watch?v=..." data-i18n-placeholder="url_placeholder" autocomplete="off">
+                        <button id="btn-paste" class="btn-paste" title="Paste" data-i18n-title="btn_paste">
+                            <i data-lucide="clipboard-paste"></i>
+                        </button>
+                        <button id="btn-analyze" class="btn-primary" data-i18n="btn_analyze">Analyze</button>
+                    </div>
+                </div>
+
+                <!-- Analysis Loading Spinner -->
+                <div id="analysis-loading" class="spinner-container" style="display: none;">
+                    <div class="spinner"></div>
+                    <p data-i18n="analyzing_loading">Analyzing link, please wait...</p>
+                </div>
+
+                <!-- Media Info Render Area -->
+                <div id="media-info-card" class="media-card" style="display: none;">
+                    <!-- Content will be injected dynamically by app.js -->
+                </div>
+            </section>
+
+            <!-- TAB: LIBRARY -->
+            <section id="tab-library" class="tab-panel">
+                <div class="sticky-library-header">
+                    <div class="header-section-row">
+                        <div>
+                            <h1 data-i18n="library_title">Library</h1>
+                            <p class="subtitle" data-i18n="library_subtitle">Save your frequently downloaded video and playlist links.</p>
+                        </div>
+                        <button id="btn-open-add-library" class="btn-primary" data-i18n="btn_add_new_link">Add New Link</button>
+                    </div>
+
+                    <!-- Add to Library Modal/Form (Inline Toggle) -->
+                    <div id="add-library-box" class="card-simple form-box" style="display: none;">
+                        <h3 data-i18n="add_to_library_title">Add Link to Library</h3>
+                        <div class="form-row">
+                            <input type="text" id="lib-title" placeholder="Title (Optional, auto-fetched if left blank)" data-i18n-placeholder="lib_title_placeholder">
+                            <div class="input-with-paste">
+                                <input type="text" id="lib-url" placeholder="YouTube Video or Playlist Link" data-i18n-placeholder="lib_url_placeholder">
+                                <button id="btn-paste-library" class="btn-paste" title="Paste" data-i18n-title="btn_paste">
+                                    <i data-lucide="clipboard-paste"></i>
+                                </button>
+                            </div>
+                            <div class="form-actions">
+                                <button id="btn-cancel-library" class="btn-secondary" data-i18n="btn_cancel">Cancel</button>
+                                <button id="btn-save-library" class="btn-primary" data-i18n="btn_save_library">Save to Library</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="library-toolbar">
+                        <div class="tabs-sub">
+                            <button class="sub-tab active" id="lib-filter-all" data-i18n="filter_all">All</button>
+                            <button class="sub-tab" id="lib-filter-video" data-i18n="filter_videos">Videos</button>
+                            <button class="sub-tab" id="lib-filter-playlist" data-i18n="filter_playlists">Playlists</button>
+                        </div>
+                        
+                        <!-- Layout View Mode Selector -->
+                        <div class="view-mode-selector">
+                            <button class="view-btn" id="btn-view-list" title="List View" data-i18n-title="view_list">
+                                <i data-lucide="menu"></i>
+                            </button>
+                            <button class="view-btn active" id="btn-view-grid" title="Grid View" data-i18n-title="view_grid">
+                                <i data-lucide="layout-grid"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="library-list" class="list-container grid-view">
+                    <!-- Library items injected here -->
+                    <div class="empty-state">
+                        <i data-lucide="folder-open"></i>
+                        <p data-i18n="empty_library">No saved links in your library yet.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB: DOWNLOADS LIST -->
+            <section id="tab-downloads-list" class="tab-panel">
+                <div class="header-section-row">
+                    <div>
+                        <h1 data-i18n="downloads_title">Downloads & History</h1>
+                        <p class="subtitle" data-i18n="downloads_subtitle">Track active downloads and manage your download history.</p>
+                    </div>
+                    <div style="display: flex; gap: 12px; align-items: center;">
+                        <!-- Layout View Mode Selector -->
+                        <div class="view-mode-selector">
+                            <button class="view-btn active" id="btn-dl-view-list" title="List View" data-i18n-title="view_list">
+                                <i data-lucide="menu"></i>
+                            </button>
+                            <button class="view-btn" id="btn-dl-view-grid" title="Grid View" data-i18n-title="view_grid">
+                                <i data-lucide="layout-grid"></i>
+                            </button>
+                        </div>
+                        <button id="btn-clear-history" class="btn-secondary" data-i18n="btn_clear_history">Clear History</button>
+                    </div>
+                </div>
+
+
+                <div class="downloads-sections">
+                    <!-- Active Queue -->
+                    <div class="downloads-column">
+                        <h3 data-i18n="active_downloads_heading">Active Downloads</h3>
+                        <div id="active-downloads-container" class="list-container">
+                            <div class="empty-state-small" id="active-empty">
+                                <p data-i18n="empty_active">No active downloads in progress.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Completed History -->
+                    <div class="downloads-column">
+                        <h3 data-i18n="history_downloads_heading">Completed Downloads</h3>
+                        <div id="history-downloads-container" class="list-container">
+                            <!-- Completed history injected here -->
+                            <div class="empty-state-small" id="history-empty">
+                                <p data-i18n="empty_history">No download history found.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB: SETTINGS -->
+            <section id="tab-settings" class="tab-panel">
+                <div class="settings-wrapper">
+                    <div class="header-section">
+                        <h1 data-i18n="settings_title">Settings</h1>
+                        <p class="subtitle" data-i18n="settings_subtitle">Configure application preferences here.</p>
+                    </div>
+
+                    <div class="settings-list">
+                        <!-- Language Selection -->
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <span class="setting-title" data-i18n="language_card_title">Language Selection</span>
+                                <span class="setting-desc" data-i18n="language_card_desc">Choose the application display language.</span>
+                            </div>
+                            <div class="setting-control">
+                                <select class="dropdown-select minimal-select" id="language-select">
+                                    <option value="en" selected>English</option>
+                                    <option value="tr">Türkçe</option>
+                                    <option value="de">Deutsch</option>
+                                    <option value="it">Italiano</option>
+                                    <option value="ru">Русский</option>
+                                    <option value="es">Español</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- CPU & Performance Limit -->
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <span class="setting-title" data-i18n="cpu_card_title">CPU & Performance Limit (Fan & Heat Control)</span>
+                                <span class="setting-desc" data-i18n="cpu_card_desc">Number of CPU cores used during conversion and merging.</span>
+                            </div>
+                            <div class="setting-control">
+                                <select class="dropdown-select minimal-select" id="cpu-threads-select">
+                                    <option value="1" data-i18n="cpu_opt_1">1 Core (Quiet Fan / Minimum Heat)</option>
+                                    <option value="2" data-i18n="cpu_opt_2" selected>2 Cores (Balanced - Recommended for Laptops)</option>
+                                    <option value="4" data-i18n="cpu_opt_4">4 Cores (High Performance)</option>
+                                    <option value="8" data-i18n="cpu_opt_8">8 Cores (Maximum Power)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Download Folder -->
+                        <div class="setting-item setting-item-block">
+                            <div class="setting-header-row">
+                                <div class="setting-info">
+                                    <span class="setting-title" data-i18n="folder_card_title">Download Folder</span>
+                                    <span class="setting-desc" data-i18n="folder_card_desc">Default folder where downloaded MP4 and MP3 files will be saved.</span>
+                                </div>
+                                <button id="btn-change-path" class="btn-secondary btn-compact" data-i18n="btn_change_folder">Change Folder</button>
+                            </div>
+                            <div class="path-display-minimal" id="download-path-text">C:\Users\...\Downloads</div>
+                        </div>
+
+                        <!-- Library Updates -->
+                        <div class="setting-item setting-item-block">
+                            <div class="setting-header-row">
+                                <div class="setting-info">
+                                    <span class="setting-title" data-i18n="updates_card_title">Library Updates</span>
+                                    <span class="setting-desc" data-i18n="updates_card_desc">Check and update the YouTube download engine (yt-dlp) and media tools to their latest versions.</span>
+                                </div>
+                                <div class="setting-actions-row">
+                                    <button id="btn-check-updates" class="btn-secondary btn-compact">
+                                        <i data-lucide="refresh-cw"></i>
+                                        <span data-i18n="btn_check_updates">Check for Updates</span>
+                                    </button>
+                                    <button id="btn-update-all" class="btn-primary btn-compact" style="display: none;">
+                                        <i data-lucide="arrow-up-circle"></i>
+                                        <span data-i18n="btn_update_all">Update All</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Update Status and Package List Area -->
+                            <div id="update-status-box" class="update-status-minimal" style="display: none;">
+                                <!-- Injected dynamically by app.js -->
+                            </div>
+                        </div>
+
+                        <!-- Clear User Data -->
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <span class="setting-title" data-i18n="clear_data_title">Clear User Data</span>
+                                <span class="setting-desc" data-i18n="clear_data_desc">Deletes all saved library links, downloads history, and resets application preferences.</span>
+                            </div>
+                            <div class="setting-control">
+                                <button id="btn-clear-data" class="btn-danger btn-compact">
+                                    <i data-lucide="trash-2"></i>
+                                    <span data-i18n="btn_clear_data">Clear Data</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- About Application -->
+                        <div class="setting-item setting-item-block setting-about">
+                            <span class="setting-title" data-i18n="about_card_title">About Application</span>
+                            <p class="setting-desc-plain" data-i18n="about_card_desc">VANT YT Downloader v1.0.0. Designed with a light, monochromatic minimalist interface. Powered by <strong>yt-dlp</strong> for downloads and built-in <strong>ffmpeg</strong> for audio conversions.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Notifications toast -->
+    <div id="toast" class="toast" style="display: none;">
+        <span id="toast-message">Bildirim</span>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

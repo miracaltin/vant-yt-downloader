@@ -1,0 +1,23 @@
+# User Data & Databases
+app.db
+*.db
+*.sqlite3
+
+# Downloads directory (local media files)
+downloads/
+
+# Python bytecode & cache
+__pycache__/
+*.py[cod]
+*.class
+
+# Virtual environments
+venv/
+env/
+.venv/
+
+# IDEs & OS files
+.vscode/
+.idea/
+Thumbs.db
+Desktop.ini

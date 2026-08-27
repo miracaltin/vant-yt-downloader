@@ -1,1 +1,0 @@
-@echo off\npy build_exe.py\npause\n

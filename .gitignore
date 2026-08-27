@@ -16,10 +16,12 @@ venv/
 env/
 .venv/
 
-# PyInstaller build artifacts
+# PyInstaller build artifacts & local scripts
 build/
 dist/
 *.spec
+build.bat
+build_exe.py
 
 # IDEs & OS files
 .vscode/

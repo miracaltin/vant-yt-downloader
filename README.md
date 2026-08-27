@@ -66,9 +66,11 @@
    ```
 
 4. **Run the application:**
-   ```bash
-   python main.py
-   ```
+   - **Quick Launch (Windows):** Simply double-click `run.bat`
+   - **Or via terminal:**
+     ```bash
+     python main.py
+     ```
 
 ---
 
@@ -85,6 +87,7 @@ yt_downloader/
 ├── database.py            # SQLite user database management
 ├── downloader.py          # yt-dlp downloader worker threads & hooks
 ├── main.py                # PyQt6 window and IPC controller
+├── run.bat                # One-click Windows application launcher
 ├── requirements.txt       # Python dependencies
 ├── .gitignore             # Git ignored files (databases, downloads, cache)
 └── README.md              # Project documentation
